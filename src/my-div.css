@@ -1,6 +1,7 @@
-.one-ui-title {
+.my-div {
   color: #f00;
   min-height: 30px;
   border: #f00 solid 1px;
   display: block;
 }
+.my-div header{ color: green; }

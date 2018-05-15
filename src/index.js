@@ -1,11 +1,7 @@
 import 'document-register-element';
 import styles from './my-div.css'
+import myDivTemplate from './my-div.pug'
 // https://github.com/parcel-bundler/parcel/issues/70
-import fs from 'fs';
-// 以字符串的形式读取内容
-const str = fs.readFileSync(__dirname + '/my-div.ejs', 'utf8');
-
-import ejs from 'ejs'
 
 console.log(styles)
 
@@ -24,9 +20,9 @@ class MyDiv extends HTMLElement {
     console.log('connectedCallback')
     this.addEventListener('click', console.log);
 
-    this.className = styles['one-ui-title']
+    this.className = styles['my-div']
     var divDom = document.createElement('div');
-    divDom.innerHTML = ejs.render(str, { users: [ {name: 'AAAA'}, {name: 'BBB'} ]});
+    divDom.innerHTML = myDivTemplate({});
     this.appendChild(divDom);
     // https://stackoverflow.com/questions/43836886/failed-to-construct-customelement-error-when-javascript-file-is-placed-in-head
   }
