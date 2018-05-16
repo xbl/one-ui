@@ -4,7 +4,10 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './src/index.js',
+  mode: 'development',
+  entry: {
+    app: './src/index.js',
+  },
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, '../dist')
@@ -13,7 +16,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'one-ui',
       template: 'index.html',
-    })
+    }),
+    new webpack.HotModuleReplacementPlugin()
   ],
   module: {
     rules: [

@@ -1,9 +1,9 @@
 import 'document-register-element';
-import styles from './my-div.css'
-import myDivTemplate from './my-div.pug'
+import styles from './my-div.css';
+import myDivTemplate from './my-div.pug';
 // https://github.com/parcel-bundler/parcel/issues/70
 
-console.log(styles)
+console.log(styles);
 
 // extends some different native constructor
 class MyDiv extends HTMLElement {
@@ -17,7 +17,7 @@ class MyDiv extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log('connectedCallback')
+    console.log('connectedCallback');
     this.addEventListener('click', console.log);
 
     this.className = styles['my-div']
