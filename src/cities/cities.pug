@@ -1,17 +1,16 @@
 div(class=styles.model)
   header
-    | 选择城市：北京
-    input(type='radio' name='city')
-  ul
-    h3 A（以A为开头的城市名）
-    li
-      label
-        span 北京市
-        input(type='radio' name='city')
-    li
-      label
-        span 北京市
-        input(type='radio' name='city')
+    | 选择城市：
+    span.current-city
+    input(type='radio' name='current-city' checked)
+  div(class=styles.content)
+    ul
+      each city in cities
+        h3 #{city.firstLetter}（以#{city.firstLetter}为开头的城市名）
+        li
+          label
+            span= city.name
+            input(type='radio' name='city' value='' + city.code)
   footer
     label
       input(type='radio' name='readed')
