@@ -5,8 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <style>
+  h3{ color: red; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/2.0.2/webcomponents-bundle.js"></script>
+  <script src="src/index.js"></script>
 </head>
 <body>
-  <script src="./src/index.js"></script>
+  <script>
+  class MyDom {
+    get tagName() {
+      return 'my-abc';
+    };
+
+    get props() {
+      return {
+        abc: String
+      }
+    }
+
+    data() {
+      return {
+        name: '谢小呆',
+        age: 2,
+        children: {
+          name: 'hello',
+          age: 1
+        }
+      };
+    }
+
+    get template() {
+      return `
+        <div>
+          <h3>hi {{ name }} age: {{ age + 1 }} </h3>
+          <ul>
+            <li>age: {{ age + 1}}</li>
+            <li><button @click='sub'>-</button><button @click='add'>+</button></li>
+            <li>children.name: {{ children.name }}</li>
+            <li>children.age: {{ children.age < 2 ? 'A': 'B' }}</li>
+            <li><button @click='subChildrenAge'>-</button><button @click='addChildrenAge'>+</button></li>
+            <li><button @click='changeName'> change name !</button></li>
+            <li><button @click='changeName2'> change name !</button></li>
+          </ul>
+        </div>
+      `;
+    };
+
+    get style() {
+      return `h3{ color: green; }`;
+    }
+
+    get methods() {
+      return {
+        add: function() {
+          this.data.age++;
+        },
+        sub: function() {
+          this.data.age--;
+        },
+        changeName: function() {
+          this.data.name = 'hello!'
+        },
+        changeName2: function() {
+          this.data.children.name = 'helloABC!'
+        },
+        addChildrenAge: function() {
+          this.data.children.age++;
+        },
+        subChildrenAge: function() {
+          this.data.children.age--;
+        },
+      }
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.log(name + ':' + newValue);
+    };
+  }
+  window.OneUi.defineComponent(MyDom);
+  </script>
+  <my-abc abc='abc-123'></my-abc>
 </body>
 </html>

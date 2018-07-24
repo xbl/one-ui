@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "parcel index.html --out-dir ./dist",
+    "start": "parcel index.html --global OneUi --out-dir ./tmp",
     "build": "parcel build src/index.js --global OneUi --out-dir ./dist ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
