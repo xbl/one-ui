@@ -14,6 +14,10 @@ export const defineComponent = function (componentClazz) {
         this.appendChild(styleDom);
       }
       bindEvent(this, vm);
+      const _this = this;
+      vm.$emit = function(eventName, detail) {
+        _this.dispatchEvent(new CustomEvent(eventName, {detail}));
+      }
   }
   const attrs = Object.keys(vm.props);
   ElementTemplate.observedAttributes = attrs;
