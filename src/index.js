@@ -7,14 +7,18 @@ export const defineComponent = function (componentClazz) {
       const documentFlagment = strToHtml(vm.template.trim());
       vm.data && registerDefineProperty(vm);
       registerDom(documentFlagment, vm);
-      this.appendChild(documentFlagment);
+      let targetDom = this;
+      if (isNative(this.attachShadow)) {
+        targetDom = this.attachShadow({mode: 'open'});
+      }
+      targetDom.appendChild(documentFlagment);
       if (vm.style) {
         const styleDom = document.createElement('style');
         styleDom.textContent = vm.style.trim();
-        this.appendChild(styleDom);
+        targetDom.appendChild(styleDom);
       }
-      bindEvent(this, vm);
-      const _this = this;
+      bindEvent(targetDom, vm);
+      const _this = targetDom;
       vm.$emit = function(eventName, detail) {
         _this.dispatchEvent(new CustomEvent(eventName, {detail}));
       }
@@ -33,18 +37,8 @@ export default {
 }
 
 const getElementTemplate = function () {
-  let ElementTemplate;
-  if (isNative(customElements.define)) {
-    // ElementTemplate = class extends HTMLElement {}
-    // 为了不让 babel 编译成 es5
-    const createHostConstructor = new Function('', 'return class extends HTMLElement{}');
-    ElementTemplate = createHostConstructor();
-  } else {
-    ElementTemplate = function(self) {
-      return HTMLElement.call(this, self);
-    };
-  }
-  return ElementTemplate;
+  const createHostConstructor = new Function('', 'return class extends HTMLElement{}');
+  return createHostConstructor();
 };
 
 function isNative(fn) {
