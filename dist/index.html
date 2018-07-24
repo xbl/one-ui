@@ -7,9 +7,77 @@
   <title>Document</title>
 </head>
 <body>
-  <my-div>
-    <button>abc</button>
-  </my-div>
-  <cities-dialog cities='[{"id":0,"name":"深圳","lat":22.546054,"lng":114.025974,"code":"Shenzhen","distance":18721,"firstLetter":"S","selected":true,"status":"NORMAL","createTime":1526448134580},{"id":0,"name":"广州","lat":23.120049,"lng":113.30765,"code":"Guangzhou","distance":115040,"firstLetter":"G","selected":false,"status":"NORMAL","createTime":1526448134579},{"id":0,"name":"梅州","lat":24.308932,"lng":116.126088,"code":"Meizhou","distance":295971,"firstLetter":"M","selected":false,"status":"NORMAL","createTime":1526448134580},{"id":0,"name":"永州","lat":26.452779,"lng":111.602782,"code":"Yongzhou","distance":517500,"firstLetter":"Y","selected":false,"status":"NORMAL","createTime":1526448134580},{"id":0,"name":"吉安","lat":27.123071,"lng":114.998789,"code":"Jian","distance":533188,"firstLetter":"J","selected":false,"status":"NORMAL","createTime":1526448134580}]'></cities-dialog>
-<script type="text/javascript" src="index.js"></script></body>
+  <script src="./index.js"></script>
+  <script>
+  class MyDom {
+        get tagName() {
+            return 'my-abc';
+        };
+
+        get props() {
+            return {
+                abc: String
+            }
+        }
+
+        data() {
+            return {
+                name: '谢小呆',
+                age: 2,
+                abc: 7777,
+                children: {
+                    name: 'hello',
+                    age: 1
+                }
+            };
+        }
+
+        get template() {
+            return `
+                <div>
+                    <h3>hi {{ name }} age: {{ age + 1 }} {{ abc }}</h3>
+                    <ul>
+                        <li>age: {{ age + 1}}</li>
+                        <li><button @click='sub'>-</button><button @click='add'>+</button></li>
+                        <li>children.name: {{ children.name }}</li>
+                        <li>children.age: {{ children.age < 2 ? 'A': 'B' }}</li>
+                        <li><button @click='subChildrenAge'>-</button><button @click='addChildrenAge'>+</button></li>
+                        <li><button @click='changeName'> change name !</button></li>
+                        <li><button @click='changeName2'> change name !</button></li>
+                    </ul>
+                </div>
+            `;
+        };
+        
+        get methods() {
+            return {
+                add: function() {
+                    this.data.age++;
+                },
+                sub: function() {
+                    this.data.age--;
+                },
+                changeName: function() {
+                    this.data.name = 'hello!'
+                },
+                changeName2: function() {
+                    this.data.children.name = 'helloABC!'
+                },
+                addChildrenAge: function() {
+                    this.data.children.age++;
+                },
+                subChildrenAge: function() {
+                    this.data.children.age--;
+                },
+            }
+        }
+
+        attributeChangedCallback(name, oldValue, newValue) {
+            console.log(name + ':' + newValue);
+        };
+    }
+    window.One.defineComponent(MyDom);
+    </script>
+    <my-abc abc='abc-123'></my-abc>
+</body>
 </html>
