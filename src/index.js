@@ -18,7 +18,7 @@ export const defineComponent = function (componentClazz) {
         targetDom.appendChild(styleDom);
       }
       bindEvent(targetDom, vm);
-      const _this = targetDom;
+      const _this = this;
       vm.$emit = function(eventName, detail) {
         _this.dispatchEvent(new CustomEvent(eventName, {detail}));
       }
