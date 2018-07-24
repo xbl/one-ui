@@ -1,4 +1,5 @@
 // import '@webcomponents/custom-elements';
+
 export const defineComponent = function (componentClazz) {
   let ElementTemplate = getElementTemplate();
   const vm = new componentClazz();
@@ -7,6 +8,11 @@ export const defineComponent = function (componentClazz) {
       registerDefineProperty(vm);
       registerDom(documentFlagment, vm);
       this.appendChild(documentFlagment);
+      if (vm.style) {
+        const styleDom = document.createElement('style');
+        styleDom.textContent = vm.style.trim();
+        this.appendChild(styleDom);
+      }
       bindEvent(this, vm);
   }
   const attrs = Object.keys(vm.props);
@@ -17,6 +23,10 @@ export const defineComponent = function (componentClazz) {
   const tagName = vm.tagName || getTagNameByClazzName(componentClazz.name);
   customElements.define(tagName, ElementTemplate);
 };
+
+export default {
+  defineComponent
+}
 
 const getElementTemplate = function () {
   let ElementTemplate;
