@@ -1,15 +1,6 @@
 // import '@webcomponents/custom-elements';
 export const defineComponent = function (componentClazz) {
-  let ElementTemplate;
-  if (isNative(customElements.define)) {
-    // ElementTemplate = class extends HTMLElement {}
-    const createHostConstructor = new Function('', 'return class extends HTMLElement{}');
-    ElementTemplate = createHostConstructor();
-  } else {
-    ElementTemplate = function(self) {
-      return HTMLElement.call(this, self);
-    };
-  }
+  let ElementTemplate = getElementTemplate();
   const vm = new componentClazz();
   ElementTemplate.prototype.connectedCallback = function() {
       const documentFlagment = strToHtml(vm.template.trim());
@@ -25,6 +16,21 @@ export const defineComponent = function (componentClazz) {
   }
   const tagName = vm.tagName || getTagNameByClazzName(componentClazz.name);
   customElements.define(tagName, ElementTemplate);
+};
+
+const getElementTemplate = function () {
+  let ElementTemplate;
+  if (isNative(customElements.define)) {
+    // ElementTemplate = class extends HTMLElement {}
+    // 为了不让 babel 编译成 es5
+    const createHostConstructor = new Function('', 'return class extends HTMLElement{}');
+    ElementTemplate = createHostConstructor();
+  } else {
+    ElementTemplate = function(self) {
+      return HTMLElement.call(this, self);
+    };
+  }
+  return ElementTemplate;
 };
 
 function isNative(fn) {
