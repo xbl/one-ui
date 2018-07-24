@@ -5,7 +5,7 @@ export const defineComponent = function (componentClazz) {
   const vm = new componentClazz();
   ElementTemplate.prototype.connectedCallback = function() {
       const documentFlagment = strToHtml(vm.template.trim());
-      registerDefineProperty(vm);
+      vm.data && registerDefineProperty(vm);
       registerDom(documentFlagment, vm);
       this.appendChild(documentFlagment);
       if (vm.style) {
