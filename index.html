@@ -20,14 +20,22 @@
 
     get props() {
       return {
-        abc: String
+        abc: JSON
       }
+    }
+
+    set abc(newVal) {
+      console.log(this.data.abc);
+      this.data.abc = newVal;
+      console.log(this.data.abc);
     }
 
     data() {
       return {
         name: '谢小呆',
         age: 18,
+        abc: {
+        },
         children: {
           name: 'hello',
           age: 1
@@ -38,7 +46,7 @@
     get template() {
       return `
         <div>
-          <h3>hi {{ name }} age: {{ age + 1 }} </h3>
+          <h3>hi {{ name }} age: {{ age + 1 }} , {{ abc.b.c }}</h3>
           <ul>
             <li>age: {{ age + 1}}</li>
             <li><button @click='sub'>-</button><button @click='add'>+</button></li>
@@ -78,13 +86,9 @@
         },
       }
     }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      console.log(name + ':' + newValue);
-    };
   }
   window.OneUi.defineComponent(MyDom);
   </script>
-  <my-abc abc='abc-123'></my-abc>
+  <my-abc abc='{"b":{"c":2}}'></my-abc>
 </body>
 </html>

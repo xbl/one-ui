@@ -1,11 +1,14 @@
 // import '@webcomponents/custom-elements';
+const watcher = [];
+const attributeChangedArr = [];
 
 export const defineComponent = function (componentClazz) {
   let ElementTemplate = getElementTemplate();
   const vm = new componentClazz();
+  let renderd = false;
   ElementTemplate.prototype.connectedCallback = function() {
       const documentFlagment = strToHtml(vm.template.trim());
-      vm.data && registerDefineProperty(vm);
+      registerData(vm);
       registerDom(documentFlagment, vm);
       let targetDom = this;
       if (isNative(this.attachShadow)) {
@@ -22,11 +25,17 @@ export const defineComponent = function (componentClazz) {
       vm.$emit = function(eventName, detail) {
         _this.dispatchEvent(new CustomEvent(eventName, {detail}));
       }
+
+      attributeChangedCallback(vm);
+      renderd = true;
   }
   const attrs = Object.keys(vm.props);
   ElementTemplate.observedAttributes = attrs;
-  ElementTemplate.prototype.attributeChangedCallback = function() {
-      vm.attributeChangedCallback.apply(this, arguments);
+  ElementTemplate.prototype.attributeChangedCallback = function(name, oldVal, newVal) {
+    if (!renderd) {
+      return attributeChangedArr.push({name, oldVal, newVal});
+    }
+    attributeChangedCallback(vm);
   }
   const tagName = vm.tagName || getTagNameByClazzName(componentClazz.name);
   customElements.define(tagName, ElementTemplate);
@@ -82,72 +91,75 @@ const bindEvent = function(documentFragment, context) {
 
 const strTemplateRegExp = /\{\{((?:.|\n)+?)\}\}/g;
 
-const registerDom = function(documentFragment, context) {
-    documentFragment.childNodes.forEach((node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-            const strTemplate = node.nodeValue;
-            if (!strTemplateRegExp.test(strTemplate)) return;
-            const protoNameArr = Object.keys(context.data);
-            const refreshDom = function () {
-                let resultStr = strTemplate;
-                resultStr.replace(strTemplateRegExp, function(match, expression) {
-                    const keys = protoNameArr.join(',');
-                    const evalFn = new Function(`{${keys}}`, `return ${expression}`);
-                    resultStr = resultStr.replace(match, evalFn(context.data));
-                });
-                if(node.nodeValue !== resultStr)
-                    node.nodeValue = resultStr;
-            };
-            refreshDom();
-            watcher.push(refreshDom);
-        }
-        registerDom(node, context);
-    });
+const registerData = function (vm) {
+  if (!vm.data)
+    return ;
+  vm._data = vm.data();
+  register(vm._data);
+  Object.defineProperty(vm, 'data', {
+    get: function() {
+      return vm._data;
+    },
+    enumerable: true,
+    configurable: true
+  });
 };
 
-const watcher = [];
-
-const registerDefineProperty = function(context) {
-    Object.keys(context.data()).forEach((protoName) => {
-        context.data['_' + protoName] = context.data()[protoName];
-        Object.defineProperty(context.data, protoName, {
-            set: function(newVal) {
-                if (context.data['_' + protoName] === newVal) return;
-                context.data['_' + protoName] = newVal;
-                // newVal is Object
-                if(newVal instanceof Object)
-                    register(newVal);
-                watcher.forEach((callback) => callback());
-
-            },
-            get: function() {
-                return context.data['_' + protoName];
-            },
-            enumerable: true,
-            configurable: true
+const registerDom = function(documentFragment, context) {
+  documentFragment.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const strTemplate = node.nodeValue;
+      if (!strTemplateRegExp.test(strTemplate)) return;
+      const protoNameArr = Object.keys(context.data);
+      const refreshDom = function () {
+        let resultStr = strTemplate;
+        resultStr.replace(strTemplateRegExp, function(match, expression) {
+          const keys = protoNameArr.join(',');
+          const evalFn = new Function(`{${keys}}`, `try{return ${expression}}catch(e){}`);
+          resultStr = resultStr.replace(match, evalFn(context.data));
         });
-        if(context.data[protoName] instanceof Object)
-            register(context.data[protoName]);
-    });
+        if(node.nodeValue !== resultStr)
+          node.nodeValue = resultStr;
+      };
+      refreshDom();
+      watcher.push(refreshDom);
+    }
+    registerDom(node, context);
+  });
 };
 
 const register = function(obj) {
-    Object.keys(obj).forEach((protoName) => {
-        obj['_' + protoName] = obj[protoName];
+  Object.keys(obj).forEach((protoName) => {
+    obj['_' + protoName] = obj[protoName];
 
-        Object.defineProperty(obj, protoName, {
-            set: function(newVal) {
-                if (obj['_' + protoName] === newVal) return;
-                obj['_' + protoName] = newVal;
-                watcher.forEach((callback) => callback());
-            },
-            get: function() {
-                return obj['_' + protoName];
-            },
-            enumerable: true,
-            configurable: true
-        });
-        if(obj[protoName] instanceof Object)
-            register(obj[protoName]);
+    Object.defineProperty(obj, protoName, {
+      set: function(newVal) {
+        if (obj['_' + protoName] === newVal) return;
+        obj['_' + protoName] = newVal;
+        if(newVal instanceof Object)
+          register(obj[protoName]);
+        watcher.forEach((callback) => callback());
+      },
+      get: function() {
+        return obj['_' + protoName];
+      },
+      enumerable: true,
+      configurable: true
     });
+    if(obj[protoName] instanceof Object)
+      register(obj[protoName]);
+  });
+};
+
+const attributeChangedCallback = function (vm) {
+  attributeChangedArr.forEach(({name, oldVal, newVal}) => {
+    const propType = vm.props[name];
+    if (!propType)
+      return ;
+    if (typeof propType === 'function' && propType !== Object) {
+      vm[name] = propType(newVal);
+    } else if (propType === JSON || propType === Object) {
+      vm[name] = JSON.parse(newVal);
+    }
+  });
 };
